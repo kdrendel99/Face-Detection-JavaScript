@@ -1,4 +1,3 @@
-// const video = document.getElementById('video')
 var vid = document.createElement("video"); 
 vid.setAttribute('id', 'video');
 vid.setAttribute('autoplay', 'muted');
@@ -6,10 +5,25 @@ document.body.appendChild(vid);
 const video = document.getElementById("video")
 video.style.display = "none";
 
+
+
+const default1 = document.getElementById("default") 
+const neutral = document.getElementById("neutral") 
+const happy = document.getElementById("happy") 
+const sad = document.getElementById("sad") 
+const angry = document.getElementById("angry") 
+const fearful = document.getElementById("fearful") 
+const disgusted = document.getElementById("disgusted") 
+const surprised = document.getElementById("surprised") 
+const nofaces = document.getElementById("nofaces") 
+
 const face = document.getElementById('face');
+var ctx = face.getContext("2d");
 const error = document.getElementById('error');
 const toggleVideoButton = document.getElementById('toggleVideoButton');
 const toggleAudioButton = document.getElementById('toggleAudioButton');
+
+
 
 Promise.all([
   faceapi.nets.tinyFaceDetector.loadFromUri('/models'),
@@ -27,19 +41,21 @@ function startVideo() {
 }
 
 let statusIcons = {
-  default: '😎',
-  neutral: '🙂',
-  happy: '😀',
-  sad: '😥',
-  angry: '😠',
-  fearful: '😨',
-  disgusted: '🤢',
-  surprised: '😳',
-  nofaces: '😕'
+  default: default1,
+  neutral: neutral,
+  happy: happy,
+  sad: sad,
+  angry: angry,
+  fearful: fearful,
+  disgusted: disgusted,
+  surprised: surprised,
+  nofaces: nofaces
 }
 
+let img = statusIcons.default
+drawImageScaled(img, ctx)
+
 video.addEventListener('play', () => {
-  face.innerHTML = statusIcons.default
   setInterval(async () => {
     const detections = await faceapi.detectAllFaces(video, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks().withFaceExpressions()
     if (detections.length > 0) {
@@ -54,10 +70,12 @@ video.addEventListener('play', () => {
           }
         }
         // highest scored expression (status) = display the right Emoji
-        face.innerHTML = statusIcons[status]
+        let img = statusIcons[status]
+        drawImageScaled(img, ctx)
       });
     } else {
-      face.innerHTML = statusIcons.nofaces;
+      let img = statusIcons.nofaces;
+      drawImageScaled(img, ctx)
       error.style.display = 'block';
     }
   }, 100)
@@ -78,4 +96,10 @@ function toggleAudio() {
     toggleAudioButton.classList.remove("bi-mic-mute");
     toggleAudioButton.classList.add("bi-mic");
   }
+}
+
+function drawImageScaled(img, ctx) {
+  face.width = img.width;
+  face.height = img.height;
+  ctx.drawImage(img, 0, 0, img.width, img.height, 0, 0, img.width, img.height);
 }
